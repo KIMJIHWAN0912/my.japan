@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>일본어 카드</title>
+<style>
+:root{--bg:#f6f5f1;--sf:#fff;--tx:#1f2328;--mu:#6b7280;--bd:#e2e0d8;--ac:#c2410c;--ac2:#fff4ec;--ok:#15803d;--bad:#b91c1c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17171a;--sf:#222226;--tx:#ececec;--mu:#9a9aa3;--bd:#34343a;--ac:#fb923c;--ac2:#2c2118;--ok:#4ade80;--bad:#f87171;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17171a;--sf:#222226;--tx:#ececec;--mu:#9a9aa3;--bd:#34343a;--ac:#fb923c;--ac2:#2c2118;--ok:#4ade80;--bad:#f87171;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Noto Sans KR","Noto Sans JP",sans-serif}
+.app{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:18px;margin:4px 0 12px}
+nav{display:flex;gap:6px;margin-bottom:14px}
+nav button{flex:1;padding:10px;border:1px solid var(--bd);background:var(--sf);color:var(--tx);border-radius:10px;font-size:14px;cursor:pointer}
+nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:20px}
+.stats{display:flex;gap:8px;margin-bottom:12px}
+.stat{flex:1;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-size:20px}.stat span{font-size:12px;color:var(--mu)}
+select,input,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit;font-size:15px}
+textarea{min-height:110px;font-size:13px}
+label{display:block;font-size:12px;color:var(--mu);margin:10px 0 4px}
+.flash{min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
+.front{font-size:54px;line-height:1.2;word-break:break-all}
+.back{font-size:24px}.read{font-size:20px;color:var(--ac)}
+.hint{color:var(--mu);font-size:13px}
+.btn{padding:12px 16px;border:0;border-radius:10px;background:var(--ac);color:#fff;font-size:15px;cursor:pointer}
+.btn.ghost{background:var(--sf);color:var(--tx);border:1px solid var(--bd)}
+.btn.full{width:100%;margin-top:12px}
+.grades{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+.grades button{padding:12px 4px;border:1px solid var(--bd);border-radius:10px;background:var(--sf);color:var(--tx);font-size:14px;cursor:pointer}
+.grades small{display:block;color:var(--mu);font-size:11px;margin-top:2px}
+.row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--bd)}
+.row:last-child{border:0}.row .t{flex:1;min-width:0}.row .t div:last-child{color:var(--mu);font-size:13px}
+.tag{font-size:11px;background:var(--ac2);color:var(--ac);border-radius:6px;padding:2px 6px}
+.x{border:0;background:none;color:var(--bad);font-size:18px;cursor:pointer}
+.list{max-height:50vh;overflow-y:auto}
+.done{text-align:center;padding:30px 0}.done h2{margin:0 0 6px}
+.msg{font-size:13px;color:var(--ok);margin-top:8px;min-height:18px}
+.sp{height:10px}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>🎴 일본어 카드</h1>
+<nav id="nav"></nav>
+<div id="view"></div>
+</div>
+<script>
+(function(){
+var KEY='jpcards_v1',DAY=864e5;
+var S={cards:[],tab:'study',deck:'전체',q:[],cur:null,shown:false,search:'',msg:'',rst:false,gen:[],busy:false,pnote:'',pdeck:'',perr:'',pfile:null};
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S.cards));}catch(e){}}
+function mk(f,b,r,d){return {id:uid(),f:f,b:b,r:r||'',d:d,ease:2.5,int:0,due:0,n:0};}
+function seed(){
+  var h='あ:a,い:i,う:u,え:e,お:o,か:ka,き:ki,く:ku,け:ke,こ:ko,さ:sa,し:shi,す:su,せ:se,そ:so,た:ta,ち:chi,つ:tsu,て:te,と:to,な:na,に:ni,ぬ:nu,ね:ne,の:no,は:ha,ひ:hi,ふ:fu,へ:he,ほ:ho,ま:ma,み:mi,む:mu,め:me,も:mo,や:ya,ゆ:yu,よ:yo,ら:ra,り:ri,る:ru,れ:re,ろ:ro,わ:wa,を:wo,ん:n'.split(',');
+  var out=[];
+  h.forEach(function(p){var a=p.split(':');out.push(mk(a[0],a[1],'','히라가나'));});
+  h.forEach(function(p){var a=p.split(':');out.push(mk(String.fromCharCode(a[0].charCodeAt(0)+96),a[1],'','가타카나'));});
+  var w='食べる|たべる|먹다,飲む|のむ|마시다,水|みず|물,学校|がっこう|학교,先生|せんせい|선생님,友達|ともだち|친구,本|ほん|책,今日|きょう|오늘,大きい|おおきい|크다,小さい|ちいさい|작다,行く|いく|가다,見る|みる|보다,日本語|にほんご|일본어,ありがとう|ありがとう|고마워요,こんにちは|こんにちは|안녕하세요'.split(',');
+  w.forEach(function(x){var a=x.split('|');out.push(mk(a[0],a[2],a[1],'단어'));});
+  return out;
+}
+try{var raw=localStorage.getItem(KEY);if(raw)S.cards=JSON.parse(raw);}catch(e){}
+if(!Array.isArray(S.cards)||!S.cards.length){S.cards=seed();save();}
+
+function esc(s){var d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML;}
+function decks(){var o=['전체'];S.cards.forEach(function(c){if(o.indexOf(c.d)<0)o.push(c.d);});return o;}
+function inDeck(c){return S.deck==='전체'||c.d===S.deck;}
+function counts(){var now=Date.now(),du=0,nw=0;S.cards.forEach(function(c){if(!inDeck(c))return;if(!c.n)nw++;else if(c.due<=now)du++;});return {du:du,nw:nw};}
+function build(){
+  var now=Date.now(),due=[],nw=[];
+  S.cards.forEach(function(c){if(!inDeck(c))return;if(!c.n)nw.push(c);else if(c.due<=now)due.push(c);});
+  function sh(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+  S.q=sh(due).concat(sh(nw).slice(0,20));next();
+}
+function next(){S.cur=S.q.length?S.q.shift():null;S.shown=false;}
+function grade(g){
+  var c=S.cur;if(!c)return;
+  if(g===0){c.int=0;c.ease=Math.max(1.3,c.ease-.2);c.due=Date.now()+6e4;c.n=1;S.q.push(c);}
+  else{
+    if(g===1){c.int=Math.max(1,Math.round(c.int*1.2));c.ease=Math.max(1.3,c.ease-.15);}
+    else if(g===2){c.int=c.int<1?1:Math.round(c.int*c.ease);}
+    else{c.int=c.int<1?4:Math.round(c.int*c.ease*1.3);c.ease+=.15;}
+    c.due=Date.now()+c.int*DAY;c.n=1;
+  }
+  save();next();render();
+}
+function speak(t){try{var u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
+
+function render(){
+  var nav=document.getElementById('nav'),tabs=[['study','학습'],['photo','사진'],['cards','카드'],['data','백업']];
+  nav.innerHTML=tabs.map(function(t){return '<button data-t="'+t[0]+'" class="'+(S.tab===t[0]?'on':'')+'">'+t[1]+'</button>';}).join('');
+  nav.querySelectorAll('button').forEach(function(b){b.onclick=function(){S.tab=b.dataset.t;S.msg='';if(S.tab==='study')build();render();};});
+  var v=document.getElementById('view');
+  if(S.tab==='study')viewStudy(v);else if(S.tab==='photo')viewPhoto(v);else if(S.tab==='cards')viewCards(v);else viewData(v);
+}
+function deckSel(){return '<select id="deck">'+decks().map(function(d){return '<option'+(d===S.deck?' selected':'')+'>'+esc(d)+'</option>';}).join('')+'</select>';}
+function bindDeck(){var s=document.getElementById('deck');if(s)s.onchange=function(){S.deck=s.value;build();render();};}
+
+function viewStudy(v){
+  var k=counts(),h='<div class="stats"><div class="stat"><b>'+k.du+'</b><span>복습</span></div><div class="stat"><b>'+Math.min(k.nw,20)+'</b><span>새 카드</span></div><div class="stat"><b>'+S.q.length+'</b><span>남은 카드</span></div></div>'+deckSel()+'<div class="sp"></div>';
+  var c=S.cur;
+  if(!c){h+='<div class="card done"><h2>오늘 학습 끝 🎉</h2><div class="hint">다음 복습 시간이 되면 다시 와 주세요.<br>카드 탭에서 새 카드를 추가할 수도 있어요.</div></div>';}
+  else{
+    h+='<div class="card flash">'+(c.t?'<span class="tag">'+esc(c.t)+'</span>':'')+'<div class="front"'+(c.f.length>8?' style="font-size:26px"':'')+'>'+esc(c.f)+'</div>';
+    if(S.shown){h+='<div class="back">'+esc(c.b)+'</div>'+(c.r?'<div class="read">'+esc(c.r)+'</div>':'');}
+    else h+='<div class="hint">스페이스바 또는 아래 버튼으로 정답 확인</div>';
+    h+='<button class="btn ghost" id="spk">🔊 듣기</button></div>';
+    if(!S.shown)h+='<button class="btn full" id="rev">정답 보기</button>';
+    else h+='<div class="grades"><button data-g="0">다시<small>1</small></button><button data-g="1">어려움<small>2</small></button><button data-g="2">좋음<small>3</small></button><button data-g="3">쉬움<small>4</small></button></div>';
+  }
+  v.innerHTML=h;bindDeck();
+  var r=document.getElementById('rev');if(r)r.onclick=function(){S.shown=true;render();};
+  var sp=document.getElementById('spk');if(sp)sp.onclick=function(){speak(c.r||c.f);};
+  v.querySelectorAll('[data-g]').forEach(function(b){b.onclick=function(){grade(+b.dataset.g);};});
+}
+
+function viewCards(v){
+  var h='<div class="card"><label>앞면 (일본어)</label><input id="af" placeholder="例: 猫"><label>뒷면 (뜻)</label><input id="ab" placeholder="예: 고양이"><label>읽는 법 (선택)</label><input id="ar" placeholder="ねこ"><label>덱 이름</label><input id="ad" value="'+esc(S.deck==='전체'?'내 카드':S.deck)+'"><button class="btn full" id="add">카드 추가</button><div class="msg">'+esc(S.msg)+'</div></div><div class="sp"></div><input id="srch" placeholder="검색" value="'+esc(S.search)+'"><div class="sp"></div><div class="card list" id="lst"></div>';
+  v.innerHTML=h;fillList();
+  document.getElementById('add').onclick=function(){
+    var f=document.getElementById('af').value.trim(),b=document.getElementById('ab').value.trim();
+    if(!f||!b){S.msg='앞면과 뒷면을 입력해 주세요.';render();return;}
+    S.cards.push(mk(f,b,document.getElementById('ar').value.trim(),document.getElementById('ad').value.trim()||'내 카드'));
+    save();S.msg='추가했어요: '+f;render();
+  };
+  document.getElementById('srch').oninput=function(e){S.search=e.target.value;fillList();};
+}
+function fillList(){
+  var l=document.getElementById('lst'),q=S.search.toLowerCase();
+  var items=S.cards.filter(function(c){return !q||(c.f+c.b+c.r+c.d).toLowerCase().indexOf(q)>=0;}).slice(-200).reverse();
+  l.innerHTML=items.length?items.map(function(c){return '<div class="row"><div class="t"><div>'+esc(c.f)+' <span class="tag">'+esc(c.d)+'</span></div><div>'+esc(c.b)+(c.r?' · '+esc(c.r):'')+'</div></div><button class="x" data-id="'+c.id+'" aria-label="삭제">✕</button></div>';}).join(''):'<div class="hint">카드가 없어요.</div>';
+  l.querySelectorAll('.x').forEach(function(b){b.onclick=function(){S.cards=S.cards.filter(function(c){return c.id!==b.dataset.id;});save();fillList();};});
+}
+
+function resize(file){return new Promise(function(res,rej){var im=new Image(),u=URL.createObjectURL(file);im.onload=function(){var s=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(b){b?res(b):rej({code:'img'});},'image/jpeg',.85);};im.onerror=function(){rej({code:'img'});};im.src=u;});}
+function mkPrompt(){
+  return '너는 일본어 교재 페이지 사진을 한국어 학습자용 암기 카드로 바꿔 주는 도우미야. 사진 속 내용을 읽고 카드를 만들어.\n'
+  +'카드 종류(t): "단어"(f=일본어 표기, b=한국어 뜻, r=히라가나 읽기), "문법"(f=문형, b=한국어 설명과 접속 방법, r=대표 예문 일본어 한 줄), "예문"(f=일본어 예문, b=한국어 번역, r=히라가나 읽기), "문제"(f=빈칸 채우기나 번역 같은 연습문제, b=정답과 짧은 해설, r=비워 둠).\n'
+  +'규칙: 사진에 나온 단어와 문법은 빠짐없이 단어, 문법 카드로 만든다. 문법마다 직접 만든 예문 1~2개와 연습문제 1~2개를 추가한다. 사진에 연습문제가 있으면 그대로 문제 카드로 만든다. 읽기 어려운 부분은 건너뛰고 지어내지 않는다. 한 번에 최대 60장.\n'
+  +(S.pnote.trim()?'사용자 요청: '+S.pnote.trim()+'\n':'')
+  +'JSON만 출력하고 다른 말은 쓰지 마: {"cards":[{"t":"단어","f":"","b":"","r":""}]}';
+}
+function errMsg(e){var c=e&&e.code;if(c==='none'||c==='not_granted')return '이 기능을 쓰려면 Claude 사용을 허용해야 해요.';if(c==='rate_limited')return '요청이 몰렸어요. 잠시 후 다시 시도해 주세요.';if(c==='img')return '사진을 읽지 못했어요. 다른 사진으로 시도해 주세요.';if(c==='cancelled')return '';return '카드를 만들지 못했어요. 다시 시도해 주세요.';}
+function gen(){
+  if(!S.pfile){S.perr='사진을 먼저 골라 주세요.';render();return;}
+  S.busy=true;S.perr='';S.gen=[];render();
+  resize(S.pfile).then(function(b){
+    if(!window.claude)throw {code:'none'};
+    return claude.use('sample').then(function(sm){
+      if(!sm)throw {code:'none'};
+      return sm.json(mkPrompt(),{images:[b],modelTier:'default',cache:false});
+    });
+  }).then(function(d){
+    var a=Array.isArray(d)?d:((d&&d.cards)||[]);
+    S.gen=a.filter(function(c){return c&&c.f&&c.b;}).map(function(c){return {t:String(c.t||'단어'),f:String(c.f),b:String(c.b),r:String(c.r||'')};});
+    if(!S.gen.length)S.perr='카드를 찾지 못했어요. 글자가 잘 보이게 다시 찍어 주세요.';
+  }).catch(function(e){S.perr=errMsg(e);}).then(function(){S.busy=false;render();});
+}
+function viewPhoto(v){
+  var h='<div class="card"><b>교재 사진으로 카드 만들기</b><div class="hint">페이지 사진을 올리면 단어, 문법, 예문, 연습문제 카드를 자동으로 만들어요. 사용량은 내 Claude 계정에서 차감돼요.</div><label>사진</label><input type="file" id="pf" accept="image/*">'+(S.pfile?'<div class="hint">선택됨: '+esc(S.pfile.name)+'</div>':'')+'<label>덱 이름</label><input id="pd" value="'+esc(S.pdeck)+'" placeholder="예: 민나노 3과"><label>요청 (선택)</label><input id="pn" value="'+esc(S.pnote)+'" placeholder="예: 문법 위주로, 예문 많이"><button class="btn full" id="pg"'+(S.busy?' disabled':'')+'>'+(S.busy?'만드는 중… 1분 정도 걸려요':'카드 만들기')+'</button><div class="msg" style="color:var(--bad)">'+esc(S.perr)+'</div></div>';
+  if(S.gen.length){h+='<div class="sp"></div><div class="card"><b>미리보기 '+S.gen.length+'장</b><div class="hint">필요 없는 카드는 ✕로 빼세요.</div><div class="list">'+S.gen.map(function(c,i){return '<div class="row"><div class="t"><div>'+esc(c.f)+' <span class="tag">'+esc(c.t)+'</span></div><div>'+esc(c.b)+(c.r?' · '+esc(c.r):'')+'</div></div><button class="x" data-i="'+i+'" aria-label="빼기">✕</button></div>';}).join('')+'</div><button class="btn full" id="pa">'+S.gen.length+'장 모두 추가</button></div>';}
+  v.innerHTML=h;
+  document.getElementById('pf').onchange=function(e){S.pfile=e.target.files[0]||null;};
+  document.getElementById('pd').oninput=function(e){S.pdeck=e.target.value;};
+  document.getElementById('pn').oninput=function(e){S.pnote=e.target.value;};
+  document.getElementById('pg').onclick=gen;
+  v.querySelectorAll('.x').forEach(function(b){b.onclick=function(){S.gen.splice(+b.dataset.i,1);render();};});
+  var pa=document.getElementById('pa');
+  if(pa)pa.onclick=function(){
+    var d=S.pdeck.trim()||'사진 카드';
+    S.gen.forEach(function(c){var k=mk(c.f,c.b,c.r,d);k.t=c.t;S.cards.push(k);});
+    save();S.deck=d;S.gen=[];S.pfile=null;S.tab='study';build();render();
+  };
+}
+function viewData(v){
+  v.innerHTML='<div class="card"><b>내보내기 / 백업</b><div class="hint">진행 상황까지 포함된 텍스트예요. 복사해서 메모장에 보관하세요.</div><label>백업 텍스트</label><textarea id="exp" readonly></textarea><button class="btn full ghost" id="cp">복사</button></div><div class="sp"></div><div class="card"><b>가져오기</b><div class="hint">백업 텍스트를 붙여 넣거나, 한 줄에 한 장씩<br>앞면, 뒷면, 읽는 법, 덱 (쉼표 또는 탭 구분)</div><textarea id="imp" placeholder="猫, 고양이, ねこ, 내 카드"></textarea><button class="btn full" id="go">가져오기</button><div class="msg" id="m">'+esc(S.msg)+'</div></div><div class="sp"></div><div class="card"><b>초기화</b><div class="hint">모든 카드와 진행 상황이 지워져요.</div><button class="btn full ghost" id="rs">'+(S.rst?'정말 지울까요? 한 번 더 누르세요':'처음 상태로 되돌리기')+'</button></div>';
+  document.getElementById('exp').value=JSON.stringify(S.cards);
+  document.getElementById('cp').onclick=function(){var t=document.getElementById('exp');t.select();try{document.execCommand('copy');S.msg='복사했어요.';}catch(e){S.msg='직접 선택해서 복사해 주세요.';}document.getElementById('m').textContent=S.msg;};
+  document.getElementById('go').onclick=function(){
+    var t=document.getElementById('imp').value.trim(),n=0;
+    if(!t){return;}
+    try{var j=JSON.parse(t);if(Array.isArray(j)){j.forEach(function(c){if(c&&c.f&&c.b){c.id=uid();S.cards.push(c);n++;}});}}
+    catch(e){t.split(/\r?\n/).forEach(function(line){var p=line.split(/\t|,/).map(function(x){return x.trim();});if(p[0]&&p[1]){S.cards.push(mk(p[0],p[1],p[2],p[3]||'내 카드'));n++;}});}
+    save();S.msg=n+'장 가져왔어요.';render();
+  };
+  document.getElementById('rs').onclick=function(){
+    if(!S.rst){S.rst=true;render();return;}
+    S.rst=false;S.cards=seed();save();S.deck='전체';S.msg='초기화했어요.';render();
+  };
+}
+document.addEventListener('keydown',function(e){
+  if(S.tab!=='study'||!S.cur||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+  if(!S.shown&&(e.code==='Space'||e.key==='Enter')){e.preventDefault();S.shown=true;render();}
+  else if(S.shown&&'1234'.indexOf(e.key)>=0&&e.key){grade(+e.key-1);}
+});
+build();render();
+})();
+</script>
+</body>
+</html>
